@@ -14,7 +14,6 @@ export async function POST(request: Request) {
     const audioBlob = formData.get('audio') as Blob;
     const sessionId = formData.get('sessionId') as string;
 
-    // Use the voice.sendAudio method
     await retellClient.voice.sendAudio(sessionId, audioBlob);
 
     return NextResponse.json({ success: true });
