@@ -12,11 +12,13 @@ export async function POST(request: Request) {
 
     console.log('Client methods:', Object.keys(client));
     
+    // Create Retell LLM
     const llmResponse = await client.llm.create({
       general_prompt: systemPrompt
     });
     console.log('LLM created:', llmResponse);
 
+    // Create Agent with the Retell LLM
     const agentResponse = await client.agent.create({
       response_engine: { 
         type: 'retell-llm',
@@ -45,6 +47,28 @@ export async function POST(request: Request) {
     console.error('Error details:', error);
     return NextResponse.json(
       { error: 'Failed to create session', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const callId = searchParams.get('callId');
+    
+    if (!callId) {
+      return NextResponse.json(
+        { error: 'Call ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const callResponse = await client.call.retrieve(callId);
+    return NextResponse.json(callResponse);
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to retrieve transcript' },
       { status: 500 }
     );
   }
